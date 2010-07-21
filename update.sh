@@ -4,10 +4,10 @@ dialog --title "Update Riech-O-Mat" --msgbox "This script will update Riech-O-Ma
 # Return status of non-zero indicates cancel
 if [ "$?" != "0" ]
 then
-  dialog --title "Update Riech-O-Mat" --msgbox "Update was \ canceled at your
+  dialog --title "Update Riech-O-Mat" --msgbox "Update was canceled at your
   request." 10 50
 else
-  dialog --title "Update Riech-O-Mat" --infobox "Update in \ process..." 10 50  
+  dialog --title "Update Riech-O-Mat" --infobox "Update in process..." 10 50  
   git pull git://github.com/sommeru/riech-o-mat.git master >|/tmp/update.riech-o-mat.log$$ 2>&1
   # zero status indicates update was successful
   if [ "$?" = "0" ]
@@ -20,7 +20,7 @@ else
     dialog --title "Update Riech-O-Mat" --msgbox "Update failed. Press ENTER to see log file." 10 50
   fi
 fi
-dialog --title "Error Log" --textbox /tmp/update.riech-o-mat.log$$ 22 72
+dialog --title "Update Log" --textbox /tmp/update.riech-o-mat.log$$ 22 72
 rm -f /tmp/update.riech-o-mat.lo
 clear
 
