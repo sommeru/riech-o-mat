@@ -29,6 +29,7 @@ WINDOW* outermenuwin;
 WINDOW* menuwin;
 WINDOW* valvewin;
 WINDOW* stepwin;
+WINDOW* errorwin;
 IOWKIT_HANDLE devHandle,iowHandle;
 int win_max_x,win_max_y;
 
@@ -36,16 +37,33 @@ int win_max_x,win_max_y;
 
 
 
+
+void DisplayError(char* errormsg) {
+timeout(10000);
+	errorwin = subwin(win,6,30, win_max_y/2-3, win_max_x/2-10);
+	mvwaddstr(errorwin, 1, 2, errormsg);
+	wbkgd(errorwin,COLOR_PAIR(2)|A_REVERSE);
+	wborder(errorwin,0,0,0,0,0,0,0,0);
+	wrefresh(errorwin);
+getchar();
+timeout(10);	
+}
+
+
+int readMenuEntries(char* fname, MenuEntry entries[]) {
+
 /**
  * read all menu entries from the given file.
  * Entries are stored in entries. We assume that appropriate space has been allocated beforehand.
  * the number of entries read is returned
  */
-
-int readMenuEntries(char* fname, MenuEntry entries[]) {
 	int entryCount = 0;
 	int lineNo = 0;
-	FILE* f = fopen(fname, "r");
+	FILE* f;
+	if((f = fopen(fname, "r")) == NULL) {
+		DisplayError("Fatal Error\n\n  Punchcard file not found!");
+		fprintf(stderr, "Error opening punch card file: \"%s\". \n", fname);
+	}
 	while (!feof(f)) {
 		char line[MAX_LINE_LENGTH];
 		++lineNo;
@@ -88,7 +106,8 @@ int readMenuEntries(char* fname, MenuEntry entries[]) {
 					break;
 				}
 				else {
-					fprintf(stderr, "Error reading punch card \"%s\". Expected 0 or 1, got \"%c\" (l. %d)\n", fname, *s, lineNo);
+						DisplayError("Fatal Error\n\n  Problem with punchcard chars!");
+						fprintf(stderr, "Error reading punch card \"%s\". Expected 0 or 1, got \"%c\" (l. %d)\n", fname, *s, lineNo);
 					exit(1);
 				}
 			}
@@ -171,6 +190,7 @@ void performStep(MenuEntry* entry) {
 	/* Open device*/
 	devHandle = IowKitOpenDevice();
 	if (devHandle == NULL) {
+		DisplayError("Fatal Error\n\n  Riech-O-mat not connected!");
 		fprintf(stderr, "Error opening device \"iowarior\". make sure it's connected.\n");
 		exit(1);
 	}
@@ -216,6 +236,8 @@ void performStep(MenuEntry* entry) {
 	wrefresh(valvewin);
 }
 
+
+
 /**
  * main
  */
@@ -229,10 +251,6 @@ int main(int argc, char* argv[]) {
 	bool autoRun = false;
 	double nextStepAt;
 	double steptime;
-
-
-	/* read entries from punch card */
-	entryCount = readMenuEntries("punchcard.txt", entries);
 
 	/* init ncurses */
 	initscr();
@@ -252,19 +270,6 @@ int main(int argc, char* argv[]) {
 
 
 
-	/* Initialize Items */
-	it = (ITEM **)calloc(entryCount+1, sizeof(ITEM *));
-	for (i = 0; i < entryCount; ++i) {
-		it[i] = new_item(entries[i].label, "");
-		set_item_userptr(it[i], &entries[i]);
-		if (entries[i].isComment) {
-			item_opts_off(it[i], O_SELECTABLE);
-		}
-	}
-	it[entryCount] = 0;
-
-	/* Initialize Menu */
-	me = new_menu(it);
 
 	/* Set main window and sub window */
 	getmaxyx(stdscr, win_max_y, win_max_x);
@@ -293,11 +298,7 @@ int main(int argc, char* argv[]) {
 	wbkgd(win,COLOR_PAIR(1));
 	wbkgd(menuwin,COLOR_PAIR(2));
 	wbkgd(outermenuwin,COLOR_PAIR(2));
-
-
-
-	/* Post Menu */
-	post_menu(me);        
+       
 
 	/* Display Help Window */
 	helpwin= subwin(win, win_max_y-18, win_max_x/2-2, 1, 1);
@@ -360,7 +361,29 @@ int main(int argc, char* argv[]) {
 
 	mvwaddch(valvewin, 7,win_max_x/4-31/2-2 +15, ACS_VLINE);
 
+	refresh();
+	wrefresh(win);
 
+
+	/* read entries from punch card */
+	entryCount = readMenuEntries("punchcard.txt", entries);
+
+	/* Initialize Items */
+	it = (ITEM **)calloc(entryCount+1, sizeof(ITEM *));
+	for (i = 0; i < entryCount; ++i) {
+		it[i] = new_item(entries[i].label, "");
+		set_item_userptr(it[i], &entries[i]);
+		if (entries[i].isComment) {
+			item_opts_off(it[i], O_SELECTABLE);
+		}
+	}
+	it[entryCount] = 0;
+
+	/* Initialize Menu */
+	me = new_menu(it);
+
+	/* Post Menu */
+	post_menu(me); 
 	refresh();
 	wrefresh(win);
 
