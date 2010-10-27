@@ -10,7 +10,7 @@
 
 #define MAX_ENTRIES 5000
 #define MAX_LINE_LENGTH 1024
-#define version "Riech-O-Mat 0.1a"
+#define version "Riech-O-Mat 0.4"
 
 typedef struct {
 	char* label; /**< label string */
@@ -187,17 +187,17 @@ void performStep(MenuEntry* entry) {
 
 	int bitwise_valve_pos=0;	
 
-	/* Open device*/
-	devHandle = IowKitOpenDevice();
-	if (devHandle == NULL) {
-		DisplayError("Fatal Error\n\n  Riech-O-mat not connected!");
-		fprintf(stderr, "Error opening device \"iowarior\". make sure it's connected.\n");
-		exit(1);
-	}
-	iowHandle = IowKitGetDeviceHandle(1);
-	IowKitSetWriteTimeout(iowHandle, 10);
-	WriteSimple(iowHandle,~entry->valvePositions);
-	IowKitCloseDevice(devHandle);
+//	/* Open device*/
+//	devHandle = IowKitOpenDevice();
+//	if (devHandle == NULL) {
+//		DisplayError("Fatal Error\n\n  Riech-O-mat not connected!");
+//		fprintf(stderr, "Error opening device \"iowarior\". make sure it's connected.\n");
+//		exit(1);
+//	}
+//	iowHandle = IowKitGetDeviceHandle(1);
+//	IowKitSetWriteTimeout(iowHandle, 10);
+//	WriteSimple(iowHandle,~entry->valvePositions);
+//	IowKitCloseDevice(devHandle);
 
 	/* Set valve graphics*/
 	bitwise_valve_pos=~entry->valvePositions;
@@ -232,6 +232,14 @@ void performStep(MenuEntry* entry) {
 	else {
 		mvwaddch(valvewin, 3,win_max_x/4-31/2-2 +27 , ACS_TTEE);
 	}
+
+	if ((~bitwise_valve_pos & 32) == 32) {
+	mvwaddch(valvewin, 6,win_max_x/4-31/2-2 +11 , ACS_DIAMOND);
+	}	
+	else {
+	mvwaddch(valvewin, 6,win_max_x/4-31/2-2 +11 , ACS_BULLET);	
+	}
+
 
 	wrefresh(valvewin);
 }
@@ -358,7 +366,8 @@ int main(int argc, char* argv[]) {
 	mvwaddch(valvewin, 6,win_max_x/4-31/2-2 +15, ACS_LTEE);
 	mvwhline(valvewin, 6,win_max_x/4-31/2-2 +16 , ACS_HLINE,6);
 	mvwaddstr(valvewin,6,win_max_x/4-31/2-2 +22, "> EXHAUST");
-
+	mvwaddch(valvewin, 6,win_max_x/4-31/2-2 +11 , ACS_BULLET);
+	mvwaddstr(valvewin, 6,win_max_x/4-31/2-2 -1 , "EXT_TRIGGER");
 	mvwaddch(valvewin, 7,win_max_x/4-31/2-2 +15, ACS_VLINE);
 
 	refresh();
@@ -412,7 +421,7 @@ int main(int argc, char* argv[]) {
 					currentEntry = &entries[item_index(current_item(me))];
 				}
 				if (currentEntry) {
-					performStep(currentEntry);
+					 performStep(currentEntry);
 					nextStepAt = nextStepAt + (steptime / 1000);
 				}
 				else {
@@ -501,7 +510,7 @@ int main(int argc, char* argv[]) {
 						currentEntry = &entries[item_index(current_item(me))];
 					}
 					if (currentEntry) {
-						performStep(currentEntry);
+						 performStep(currentEntry);
 					}
 					else {
 						autoRun = false;
