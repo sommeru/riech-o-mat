@@ -187,17 +187,17 @@ void performStep(MenuEntry* entry) {
 
 	int bitwise_valve_pos=0;	
 
-//	/* Open device*/
-//	devHandle = IowKitOpenDevice();
-//	if (devHandle == NULL) {
-//		DisplayError("Fatal Error\n\n  Riech-O-mat not connected!");
-//		fprintf(stderr, "Error opening device \"iowarior\". make sure it's connected.\n");
-//		exit(1);
-//	}
-//	iowHandle = IowKitGetDeviceHandle(1);
-//	IowKitSetWriteTimeout(iowHandle, 10);
-//	WriteSimple(iowHandle,~entry->valvePositions);
-//	IowKitCloseDevice(devHandle);
+	/* Open device*/
+	devHandle = IowKitOpenDevice();
+	if (devHandle == NULL) {
+		DisplayError("Fatal Error\n\n  Riech-O-mat not connected!");
+		fprintf(stderr, "Error opening device \"iowarior\". make sure it's connected.\n");
+		exit(1);
+	}
+	iowHandle = IowKitGetDeviceHandle(1);
+	IowKitSetWriteTimeout(iowHandle, 10);
+	WriteSimple(iowHandle,~entry->valvePositions);
+	IowKitCloseDevice(devHandle);
 
 	/* Set valve graphics*/
 	bitwise_valve_pos=~entry->valvePositions;
