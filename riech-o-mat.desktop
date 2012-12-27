@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Riech-O-Mat
+GenericName=Riech-O-Mat Control Program
+Comment=Software for controlling an interactive smelling machine
+Exec=bash -c "cd /home/riech-o-mat/riech-o-mat/ && /home/riech-o-mat/riech-o-mat/riech-o-mat"
+Icon=/home/riech-o-mat/riech-o-mat/riech-o-mat.svg
+Terminal=false
+Type=Application
+StartupNotify=false
+Categories=Science

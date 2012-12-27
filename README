@@ -1,0 +1,21 @@
+= Riech-O-Mat =
+
+Software for controlling an automatic smelling machine.
+
+
+== Installation ==
+
+* install wxPython (2.8)
+* build "riech-o-mat-backend" using "make"
+* test the backend by running, e.g., "./riech-o-mat-backend 11000"
+
+
+== Running ==
+
+* run "./riech-o-mat"
+
+
+== Troubleshooting ==
+
+* the backend will fail if the current user cannot write to /dev/usb/iowarrior*
+
