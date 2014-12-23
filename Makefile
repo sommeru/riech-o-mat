@@ -1,12 +1,18 @@
 CFLAGS+=-Wall
 LDFLAGS+=
-LDLIBS+=
+LDLIBS+=-lusb
 
 .PHONY: all clean
 
-all: riech-o-mat-backend
+all: riech-o-mat-backend riech-o-mat-backend-niusb6501 riech-o-mat-backend-iowarrior
 
-riech-o-mat-backend: riech-o-mat-backend.o iowkit.o
+riech-o-mat-backend-iowarrior: riech-o-mat-backend-iowarrior.o iowkit.o
+
+riech-o-mat-backend: riech-o-mat-backend-niusb6501
+	ln -s riech-o-mat-backend-niusb6501 riech-o-mat-backend
+
+install-udev-rule:
+	cp 99-niusb6501.rules /etc/udev/rules.d/
 
 riech-o-mat.ico: riech-o-mat.svg
 	inkscape riech-o-mat.svg --export-dpi 240 --export-png riech-o-mat-128.png
@@ -16,5 +22,5 @@ riech-o-mat.ico: riech-o-mat.svg
 	convert riech-o-mat-16.png riech-o-mat-32.png riech-o-mat-64.png riech-o-mat-128.png riech-o-mat.ico
 
 clean:
-	rm -f riech-o-mat-backend riech-o-mat-backend.o iowkit.o
+	rm -f riech-o-mat-backend riech-o-mat-backend-iowarrior riech-o-mat-backend-iowarrior.o iowkit.o
 
