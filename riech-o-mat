@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import wxversion
+wxversion.select(wxversion.getInstalled()[0])
 import wx
 from PcWindow import PcWindow
 
