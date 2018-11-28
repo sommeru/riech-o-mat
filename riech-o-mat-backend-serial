@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+
+#
+# Serial backend for riech-o-mats using 
+# the R221A08 12VDC 8ch Serial 
+# Port interface card
+#
+
+
+import serial
+import time
+import sys
+
+def toggle1():
+    ser = serial.Serial('/dev/ttyUSB0',9600)  # open serial port
+    ser.write('\x55\x56\x00\x00\x00\x01\x03\xAF\x00'.encode(encoding='iso-8859-1',errors='strict'))     # write a string
+    ser.close()             # close port
+
+
+def open(channel):
+    if (channel == 1):
+        data = '\x55\x56\x00\x00\x00\x01\x01\xAD'
+    if (channel == 2):
+        data = '\x55\x56\x00\x00\x00\x02\x01\xAE'
+    if (channel == 3):
+        data = '\x55\x56\x00\x00\x00\x03\x01\xAF'
+    if (channel == 4):
+        data = '\x55\x56\x00\x00\x00\x04\x01\xB0'
+    if (channel == 5):
+        data = '\x55\x56\x00\x00\x00\x05\x01\xB1'
+    if (channel == 6):
+        data = '\x55\x56\x00\x00\x00\x06\x01\xB2'
+    if (channel == 7):
+        data = '\x55\x56\x00\x00\x00\x07\x01\xB3'
+    if (channel == 8):
+        data = '\x55\x56\x00\x00\x00\x08\x01\xB4'
+    ser = serial.Serial('/dev/ttyUSB0',9600)  # open serial port
+    ser.write(data.encode(encoding='iso-8859-1',errors='strict'))
+    ser.close()
+
+
+def close(channel):
+    if (channel == 1):
+        data = '\x55\x56\x00\x00\x00\x01\x02\xAE'
+    if (channel == 2):
+        data = '\x55\x56\x00\x00\x00\x02\x02\xAF'
+    if (channel == 3):
+        data = '\x55\x56\x00\x00\x00\x03\x02\xB0'
+    if (channel == 4):
+        data = '\x55\x56\x00\x00\x00\x04\x02\xB1'
+    if (channel == 5):
+        data = '\x55\x56\x00\x00\x00\x05\x02\xB2'
+    if (channel == 6):
+        data = '\x55\x56\x00\x00\x00\x06\x02\xB3'
+    if (channel == 7):
+        data = '\x55\x56\x00\x00\x00\x07\x02\xB4'
+    if (channel == 8):
+        data = '\x55\x56\x00\x00\x00\x08\x02\xB5'
+    ser = serial.Serial('/dev/ttyUSB0',9600)  # open serial port
+    ser.write(data.encode(encoding='iso-8859-1',errors='strict'))
+    ser.close()
+
+
+if (len(sys.argv) != 2):
+    print("Riech-O-Mat backend requires exactly one argument containgbinary channel information (e.g. 10101)")
+    sys.exit(0) 
+
+channelstring = str(sys.argv[1])
+
+for x in range(0, len(channelstring)):
+    if (channelstring[x] == "0"):
+        close(x+1)
+    elif (channelstring[x] == "1"):
+        open(x+1)
+
+
+
