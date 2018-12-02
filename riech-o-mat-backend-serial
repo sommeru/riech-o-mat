@@ -10,68 +10,126 @@
 import serial
 import time
 import sys
+import atexit
 
-def toggle1():
-    ser = serial.Serial('/dev/ttyUSB0',9600)  # open serial port
-    ser.write('\x55\x56\x00\x00\x00\x01\x03\xAF\x00'.encode(encoding='iso-8859-1',errors='strict'))     # write a string
-    ser.close()             # close port
+import socket
+
+def get_lock(process_name):
+    # Without holding a reference to our socket somewhere it gets garbage
+    # collected when the function exits
+    get_lock._lock_socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+
+    try:
+        get_lock._lock_socket.bind('\0' + process_name)
+    except socket.error:
+        print ('riech-o-mat-backend-already running... exiting...')
+        sys.exit()
+
+get_lock('riech-o-mat-backend-serial')
+
+serialDev = '/dev/ttyUSB1'
+serialBaudrate = 9600
+serialTimeout = 0.05
 
 
 def open(channel):
     if (channel == 1):
         data = '\x55\x56\x00\x00\x00\x01\x01\xAD'
-    if (channel == 2):
+        dataresponse = "333c000000010171"
+    elif (channel == 2):
         data = '\x55\x56\x00\x00\x00\x02\x01\xAE'
-    if (channel == 3):
+        dataresponse = '333c000000020172'
+    elif (channel == 3):
         data = '\x55\x56\x00\x00\x00\x03\x01\xAF'
-    if (channel == 4):
+        dataresponse = '333c000000030173'
+    elif (channel == 4):
         data = '\x55\x56\x00\x00\x00\x04\x01\xB0'
-    if (channel == 5):
+        dataresponse = '333c000000040174'
+    elif (channel == 5):
         data = '\x55\x56\x00\x00\x00\x05\x01\xB1'
-    if (channel == 6):
+        dataresponse = '333c000000050175'
+    elif (channel == 6):
         data = '\x55\x56\x00\x00\x00\x06\x01\xB2'
-    if (channel == 7):
+        dataresponse = '333c000000060176'
+    elif (channel == 7):
         data = '\x55\x56\x00\x00\x00\x07\x01\xB3'
-    if (channel == 8):
+        dataresponse = '333c000000070177'
+    elif (channel == 8):
         data = '\x55\x56\x00\x00\x00\x08\x01\xB4'
-    ser = serial.Serial('/dev/ttyUSB0',9600)  # open serial port
+        dataresponse = '333c000000080178'
+    ser = serial.Serial(serialDev,baudrate=serialBaudrate, timeout=serialTimeout)  # open serial port
     ser.write(data.encode(encoding='iso-8859-1',errors='strict'))
+    response = str(bytes(ser.read(8)).hex())
+    if (response != dataresponse):
+        print ("Inadequate serial response. Response:", response,"should be:", dataresponse)
+        return (0)
+    else:
+        return (1)
     ser.close()
 
 
 def close(channel):
     if (channel == 1):
         data = '\x55\x56\x00\x00\x00\x01\x02\xAE'
-    if (channel == 2):
+        dataresponse = '333c000000010272'
+    elif (channel == 2):
         data = '\x55\x56\x00\x00\x00\x02\x02\xAF'
-    if (channel == 3):
+        dataresponse = '333c000000020273'
+    elif (channel == 3):
         data = '\x55\x56\x00\x00\x00\x03\x02\xB0'
-    if (channel == 4):
+        dataresponse = '333c000000030274'
+    elif (channel == 4):
         data = '\x55\x56\x00\x00\x00\x04\x02\xB1'
-    if (channel == 5):
+        dataresponse = '333c000000040275'
+    elif (channel == 5):
         data = '\x55\x56\x00\x00\x00\x05\x02\xB2'
-    if (channel == 6):
+        dataresponse = '333c000000050276'
+    elif (channel == 6):
         data = '\x55\x56\x00\x00\x00\x06\x02\xB3'
-    if (channel == 7):
+        dataresponse = '333c000000060277'
+    elif (channel == 7):
         data = '\x55\x56\x00\x00\x00\x07\x02\xB4'
-    if (channel == 8):
+        dataresponse = '333c000000070278'
+    elif (channel == 8):
         data = '\x55\x56\x00\x00\x00\x08\x02\xB5'
-    ser = serial.Serial('/dev/ttyUSB0',9600)  # open serial port
+        dataresponse = '333c000000080279'
+
+
+
+
+    ser = serial.Serial(serialDev,baudrate=serialBaudrate, timeout=serialTimeout)  # open serial port
     ser.write(data.encode(encoding='iso-8859-1',errors='strict'))
+    response = str(bytes(ser.read(8)).hex())
+    if (response != dataresponse):
+        print ("Inadequate serial response. Response:", response,"should be:", dataresponse)
+        return (0)
+    else:
+        return (1)
     ser.close()
 
-
 if (len(sys.argv) != 2):
-    print("Riech-O-Mat backend requires exactly one argument containgbinary channel information (e.g. 10101)")
+    print("Riech-O-Mat backend requires exactly one argument containing binary channel information (e.g. 10101)")
     sys.exit(0) 
 
 channelstring = str(sys.argv[1])
 
-for x in range(0, len(channelstring)):
+for x in range(len(channelstring)-1,-1,-1):
+    returncode = 0
+    i = 0
     if (channelstring[x] == "0"):
-        close(x+1)
+        while (returncode != 1):
+            returncode = close(x+1)
+            i = i + 1
+            if (i >= 5):
+                print("Gave up setting channel", x+1, "after 5 retries. Returncode still", returncode)
+                break
     elif (channelstring[x] == "1"):
-        open(x+1)
+        while (returncode != 1):
+            returncode = open(x+1)
+            i = i + 1
+            if (i >= 5):
+                print("Gave up setting channel", x+1, "after 5 retries. Returncode still", returncode)
+                break
 
 
 
