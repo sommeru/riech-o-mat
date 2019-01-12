@@ -27,7 +27,7 @@ def get_lock(process_name):
 
 get_lock('riech-o-mat-backend-serial')
 
-serialDev = '/dev/ttyUSB1'
+serialDev = '/dev/ttyUSB0'
 serialBaudrate = 9600
 serialTimeout = 0.05
 

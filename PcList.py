@@ -20,8 +20,8 @@ class PcList(wx.ListCtrl):
         self._LINENO_COL = 0
         self._TIME_COL = 1
         self._FIRST_VALVE_COL = 2
-        self._LAST_VALVE_COL = 6
-        self._COMMENT_COL = 7
+        self._LAST_VALVE_COL = 7
+        self._COMMENT_COL = 8
 
         self.InsertColumn(0, "Line", format=wx.LIST_FORMAT_RIGHT, width=64)
         self.InsertColumn(1, "Time", format=wx.LIST_FORMAT_RIGHT, width=96)
@@ -30,7 +30,8 @@ class PcList(wx.ListCtrl):
         self.InsertColumn(4, "1", format=wx.LIST_FORMAT_CENTER, width=48)
         self.InsertColumn(5, "2", format=wx.LIST_FORMAT_CENTER, width=48)
         self.InsertColumn(6, "3", format=wx.LIST_FORMAT_CENTER, width=48)
-        self.InsertColumn(7, "Comment", format=wx.LIST_FORMAT_LEFT, width=256)
+        self.InsertColumn(7, "4", format=wx.LIST_FORMAT_CENTER, width=48)
+        self.InsertColumn(8, "Comment", format=wx.LIST_FORMAT_LEFT, width=256)
 
 
     def setEntries(self, entries):
